@@ -1,0 +1,175 @@
+/* XRadar — Custom Styles */
+
+/* Smooth transitions */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Navigation active states */
+.nav-btn {
+  color: #64748b;
+}
+
+.nav-btn:hover {
+  background-color: #f1f5f9;
+  color: #334155;
+}
+
+.active-nav {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.mnav-btn {
+  color: #64748b;
+}
+
+.mnav-btn:hover {
+  background-color: #f1f5f9;
+  color: #334155;
+}
+
+.active-mnav {
+  background-color: #0f172a;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Chart range active state */
+.chart-range-btn {
+  color: #64748b;
+}
+
+.chart-range-btn:hover {
+  color: #334155;
+}
+
+.active-range {
+  background-color: #ffffff;
+  color: #0f172a;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Smooth animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.view-content:not(.hidden) {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+/* Loading spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Pulse for demo mode indicator */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Input focus ring */
+input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(12, 142, 235, 0.15);
+}
+
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(12, 142, 235, 0.15);
+}
+
+/* Card hover effects */
+.bg-white {
+  transition: box-shadow 0.2s ease;
+}
+
+/* SVG chart smooth rendering */
+svg {
+  shape-rendering: geometricPrecision;
+}
+
+/* Heatmap cell hover */
+#activityHeatmap > div:hover {
+  opacity: 0.8;
+  transform: scale(1.15);
+  transition: all 0.15s ease;
+}
+
+/* Bot list item hover */
+#botList > div:hover {
+  transform: translateX(2px);
+  transition: transform 0.15s ease;
+}
+
+/* Modal backdrop */
+#settingsModal {
+  transition: opacity 0.2s ease;
+}
+
+/* Responsive chart containers */
+#followerChart,
+#engagementChart,
+#hoursChart,
+#performanceChart {
+  min-height: 180px;
+}
+
+/* Print styles */
+@media print {
+  nav,
+  button,
+  #settingsModal {
+    display: none !important;
+  }
+
+  .bg-white {
+    box-shadow: none !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+}

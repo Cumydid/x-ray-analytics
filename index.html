@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XRadar — X Account Analytics & Bot Detector</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              200: '#b9dffe',
+              300: '#7cc5fd',
+              400: '#36a9fa',
+              500: '#0c8eeb',
+              600: '#0070c9',
+              700: '#0159a3',
+              800: '#064b86',
+              900: '#0a3f6f',
+            },
+            surface: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              200: '#e2e8f0',
+              300: '#cbd5e1',
+              400: '#94a3b8',
+              500: '#64748b',
+              600: '#475569',
+              700: '#334155',
+              800: '#1e293b',
+              900: '#0f172a',
+            },
+            danger: '#ef4444',
+            warning: '#f59e0b',
+            success: '#10b981',
+          },
+          fontFamily: {
+            sans: ['"DM Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+            display: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-surface-50 font-sans text-surface-800 min-h-screen antialiased">
+
+  <!-- Top Navigation -->
+  <nav class="bg-white border-b border-surface-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 bg-surface-900 rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </div>
+          <span class="font-display font-800 text-xl tracking-tight text-surface-900">XRadar</span>
+        </div>
+        <div class="hidden md:flex items-center gap-1">
+          <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-btn active-nav px-4 py-2 rounded-lg text-sm font-medium transition-all">Dashboard</button>
+          <button onclick="switchView('followers')" id="nav-followers" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all">Followers</button>
+          <button onclick="switchView('botdetector')" id="nav-botdetector" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all">Bot Detector</button>
+          <button onclick="switchView('analytics')" id="nav-analytics" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all">Analytics</button>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="openSettings()" class="p-2 rounded-lg hover:bg-surface-100 transition-colors text-surface-500">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Mobile nav -->
+    <div class="md:hidden border-t border-surface-200 px-2 py-2 flex gap-1 overflow-x-auto">
+      <button onclick="switchView('dashboard')" id="mnav-dashboard" class="mnav-btn active-mnav px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all">Dashboard</button>
+      <button onclick="switchView('followers')" id="mnav-followers" class="mnav-btn px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all">Followers</button>
+      <button onclick="switchView('botdetector')" id="mnav-botdetector" class="mnav-btn px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all">Bot Detector</button>
+      <button onclick="switchView('analytics')" id="mnav-analytics" class="mnav-btn px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all">Analytics</button>
+    </div>
+  </nav>
+
+  <!-- Search / Account Lookup -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
+    <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div class="flex-1 w-full">
+          <label class="block text-xs font-medium text-surface-500 mb-1.5 uppercase tracking-wider">Analyze X Account</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400 font-medium">@</span>
+            <input type="text" id="usernameInput" placeholder="username" class="w-full pl-8 pr-4 py-3 bg-surface-50 border border-surface-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all placeholder:text-surface-400" onkeydown="if(event.key==='Enter') analyzeAccount()">
+          </div>
+        </div>
+        <button onclick="analyzeAccount()" id="analyzeBtn" class="mt-auto bg-surface-900 hover:bg-surface-800 text-white px-6 py-3 rounded-xl text-sm font-semibold transition-all hover:shadow-lg hover:shadow-surface-900/20 flex items-center gap-2 whitespace-nowrap">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+          Analyze
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div id="loadingState" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="flex flex-col items-center justify-center gap-4">
+      <div class="relative">
+        <div class="w-16 h-16 border-4 border-surface-200 rounded-full"></div>
+        <div class="w-16 h-16 border-4 border-brand-500 rounded-full absolute top-0 left-0 animate-spin border-t-transparent"></div>
+      </div>
+      <p class="text-surface-500 text-sm font-medium" id="loadingText">Analyzing account...</p>
+    </div>
+  </div>
+
+  <!-- Welcome State -->
+  <div id="welcomeState" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="text-center max-w-xl mx-auto">
+      <div class="w-20 h-20 bg-surface-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+        <svg class="w-10 h-10 text-surface-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z"/></svg>
+      </div>
+      <h2 class="font-display font-700 text-2xl text-surface-900 mb-3">Analyze any X account</h2>
+      <p class="text-surface-500 text-sm leading-relaxed mb-8">Enter a username above to get detailed metrics, follower analysis, engagement stats, and bot detection for any public X account.</p>
+      <div class="flex flex-wrap justify-center gap-3">
+        <button onclick="quickAnalyze('elonmusk')" class="px-4 py-2 bg-surface-100 hover:bg-surface-200 rounded-lg text-sm font-medium text-surface-600 transition-colors">@elonmusk</button>
+        <button onclick="quickAnalyze('OpenAI')" class="px-4 py-2 bg-surface-100 hover:bg-surface-200 rounded-lg text-sm font-medium text-surface-600 transition-colors">@OpenAI</button>
+        <button onclick="quickAnalyze('naval')" class="px-4 py-2 bg-surface-100 hover:bg-surface-200 rounded-lg text-sm font-medium text-surface-600 transition-colors">@naval</button>
+        <button onclick="quickAnalyze('github')" class="px-4 py-2 bg-surface-100 hover:bg-surface-200 rounded-lg text-sm font-medium text-surface-600 transition-colors">@github</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="mainContent" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+
+    <!-- ============== DASHBOARD VIEW ============== -->
+    <div id="view-dashboard" class="view-content">
+      <!-- Profile Card -->
+      <div class="bg-white rounded-2xl border border-surface-200 shadow-sm overflow-hidden mb-6">
+        <div class="h-28 bg-gradient-to-r from-surface-800 via-surface-700 to-surface-900 relative">
+          <div class="absolute inset-0 opacity-20" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.15\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+        </div>
+        <div class="px-6 pb-6 -mt-12">
+          <div class="flex flex-col sm:flex-row items-start sm:items-end gap-4">
+            <div id="profileAvatar" class="w-24 h-24 rounded-2xl bg-brand-500 border-4 border-white shadow-lg flex items-center justify-center text-white font-display font-700 text-3xl">
+              ?
+            </div>
+            <div class="flex-1 pt-2">
+              <div class="flex items-center gap-2 mb-1">
+                <h1 id="profileName" class="font-display font-700 text-xl text-surface-900">Account Name</h1>
+                <span id="verifiedBadge" class="hidden">
+                  <svg class="w-5 h-5 text-brand-500" viewBox="0 0 24 24" fill="currentColor"><path d="M8.52 3.59a3.06 3.06 0 0 1 4.38-.52l.1.08.1-.08a3.06 3.06 0 0 1 4.38.52c.91 1.09.98 2.62.25 3.81l-.09.13.14.04c1.44.43 2.47 1.72 2.6 3.2l.01.18v.14c0 1.55-.87 2.93-2.18 3.56l-.15.07.06.14a3.36 3.36 0 0 1-.82 3.78 3.06 3.06 0 0 1-3.38.65l-.15-.06-.04.14a3.27 3.27 0 0 1-2.94 2.33l-.2.01h-.13a3.27 3.27 0 0 1-3.08-2.16l-.05-.14-.15.07a3.06 3.06 0 0 1-3.53-.83 3.36 3.36 0 0 1-.66-3.59l.06-.15-.14-.07A3.56 3.56 0 0 1 1.7 11.2l.01-.18c.1-1.5 1.08-2.78 2.46-3.27l.15-.05-.08-.12a3.36 3.36 0 0 1 .1-3.72l.12-.16.03-.04Zm2.93 10.3-1.97-1.97-1.06 1.06 3.03 3.03 5.03-5.03-1.06-1.06-3.97 3.97Z"/></svg>
+                </span>
+              </div>
+              <p id="profileHandle" class="text-surface-500 text-sm">@username</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="accountHealth" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-success/10 text-success">Healthy</span>
+              <span id="botScore" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-surface-100 text-surface-600">Bot Score: --</span>
+            </div>
+          </div>
+          <p id="profileBio" class="mt-4 text-sm text-surface-600 leading-relaxed max-w-2xl">Account bio will appear here.</p>
+          <div class="flex flex-wrap gap-4 mt-4 text-xs text-surface-500">
+            <span id="profileLocation" class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 0 1 15 0Z"/></svg> Location</span>
+            <span id="profileJoined" class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v9.75"/></svg> Joined</span>
+            <span id="profileWebsite" class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"/></svg> Website</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-5">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-medium text-surface-500 uppercase tracking-wider">Followers</span>
+            <div class="w-8 h-8 bg-brand-50 rounded-lg flex items-center justify-center">
+              <svg class="w-4 h-4 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg>
+            </div>
+          </div>
+          <p id="metricFollowers" class="font-display font-700 text-2xl text-surface-900">--</p>
+          <p id="metricFollowersChange" class="text-xs text-success font-medium mt-1">+0% this month</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-5">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-medium text-surface-500 uppercase tracking-wider">Following</span>
+            <div class="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center">
+              <svg class="w-4 h-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z"/></svg>
+            </div>
+          </div>
+          <p id="metricFollowing" class="font-display font-700 text-2xl text-surface-900">--</p>
+          <p id="metricRatio" class="text-xs text-surface-500 font-medium mt-1">Ratio: --</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-5">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-medium text-surface-500 uppercase tracking-wider">Tweets</span>
+            <div class="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center">
+              <svg class="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z"/></svg>
+            </div>
+          </div>
+          <p id="metricTweets" class="font-display font-700 text-2xl text-surface-900">--</p>
+          <p id="metricTweetsPerDay" class="text-xs text-surface-500 font-medium mt-1">-- per day</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-5">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-medium text-surface-500 uppercase tracking-wider">Engagement</span>
+            <div class="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center">
+              <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5m.75-9 3-3 2.148 2.148A12.061 12.061 0 0 1 16.5 7.605"/></svg>
+            </div>
+          </div>
+          <p id="metricEngagement" class="font-display font-700 text-2xl text-surface-900">--</p>
+          <p class="text-xs text-surface-500 font-medium mt-1">Avg. engagement rate</p>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Follower Growth Chart -->
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="font-display font-600 text-surface-900">Follower Growth</h3>
+            <div class="flex gap-1 bg-surface-100 rounded-lg p-0.5">
+              <button onclick="setChartRange('7d', this)" class="chart-range-btn active-range px-3 py-1 rounded-md text-xs font-medium transition-all">7d</button>
+              <button onclick="setChartRange('30d', this)" class="chart-range-btn px-3 py-1 rounded-md text-xs font-medium transition-all">30d</button>
+              <button onclick="setChartRange('90d', this)" class="chart-range-btn px-3 py-1 rounded-md text-xs font-medium transition-all">90d</button>
+            </div>
+          </div>
+          <div class="h-52" id="followerChart"></div>
+        </div>
+        <!-- Engagement Chart -->
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="font-display font-600 text-surface-900">Engagement Over Time</h3>
+            <span class="text-xs text-surface-500">Last 30 days</span>
+          </div>
+          <div class="h-52" id="engagementChart"></div>
+        </div>
+      </div>
+
+      <!-- Account Quality & Activity -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <!-- Account Quality Score -->
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6">
+          <h3 class="font-display font-600 text-surface-900 mb-4">Account Quality</h3>
+          <div class="flex items-center justify-center mb-4">
+            <div class="relative w-36 h-36">
+              <svg class="w-36 h-36 transform -rotate-90" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="52" fill="none" stroke="#e2e8f0" stroke-width="10"/>
+                <circle id="qualityRing" cx="60" cy="60" r="52" fill="none" stroke="#10b981" stroke-width="10" stroke-dasharray="326.73" stroke-dashoffset="326.73" stroke-linecap="round" class="transition-all duration-1000"/>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span id="qualityScore" class="font-display font-800 text-3xl text-surface-900">--</span>
+                <span class="text-xs text-surface-500">/ 100</span>
+              </div>
+            </div>
+          </div>
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-surface-500">Authenticity</span>
+              <div class="flex items-center gap-2">
+                <div class="w-20 h-1.5 bg-surface-100 rounded-full overflow-hidden"><div id="authBar" class="h-full bg-success rounded-full transition-all duration-700" style="width:0%"></div></div>
+                <span id="authScore" class="text-surface-700 font-medium text-xs w-8 text-right">--%</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-surface-500">Activity</span>
+              <div class="flex items-center gap-2">
+                <div class="w-20 h-1.5 bg-surface-100 rounded-full overflow-hidden"><div id="activityBar" class="h-full bg-brand-500 rounded-full transition-all duration-700" style="width:0%"></div></div>
+                <span id="activityScore" class="text-surface-700 font-medium text-xs w-8 text-right">--%</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-surface-500">Influence</span>
+              <div class="flex items-center gap-2">
+                <div class="w-20 h-1.5 bg-surface-100 rounded-full overflow-hidden"><div id="influenceBar" class="h-full bg-purple-500 rounded-full transition-all duration-700" style="width:0%"></div></div>
+                <span id="influenceScore" class="text-surface-700 font-medium text-xs w-8 text-right">--%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Posting Activity -->
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6">
+          <h3 class="font-display font-600 text-surface-900 mb-4">Posting Activity</h3>
+          <div class="grid grid-cols-7 gap-1 mb-4" id="activityHeatmap"></div>
+          <div class="flex items-center justify-between text-xs text-surface-500">
+            <span>Less</span>
+            <div class="flex gap-1">
+              <div class="w-3 h-3 rounded-sm bg-surface-100"></div>
+              <div class="w-3 h-3 rounded-sm bg-brand-200"></div>
+              <div class="w-3 h-3 rounded-sm bg-brand-400"></div>
+              <div class="w-3 h-3 rounded-sm bg-brand-600"></div>
+              <div class="w-3 h-3 rounded-sm bg-brand-700"></div>
+            </div>
+            <span>More</span>
+          </div>
+          <div class="mt-4 pt-4 border-t border-surface-100 space-y-3">
+            <div class="flex justify-between items-center text-sm">
+              <span class="text-surface-500">Most active day</span>
+              <span id="mostActiveDay" class="font-medium text-surface-700">--</span>
+            </div>
+            <div class="flex justify-between items-center text-sm">
+              <span class="text-surface-500">Peak hour</span>
+              <span id="peakHour" class="font-medium text-surface-700">--</span>
+            </div>
+            <div class="flex justify-between items-center text-sm">
+              <span class="text-surface-500">Avg. daily posts</span>
+              <span id="avgDailyPosts" class="font-medium text-surface-700">--</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content Breakdown -->
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6">
+          <h3 class="font-display font-600 text-surface-900 mb-4">Content Breakdown</h3>
+          <div class="space-y-4" id="contentBreakdown">
+            <div>
+              <div class="flex justify-between text-sm mb-1.5">
+                <span class="text-surface-500">Original Tweets</span>
+                <span id="origPct" class="font-medium text-surface-700">--%</span>
+              </div>
+              <div class="w-full h-2 bg-surface-100 rounded-full overflow-hidden">
+                <div id="origBar" class="h-full bg-brand-500 rounded-full transition-all duration-700" style="width:0%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1.5">
+                <span class="text-surface-500">Retweets</span>
+                <span id="rtPct" class="font-medium text-surface-700">--%</span>
+              </div>
+              <div class="w-full h-2 bg-surface-100 rounded-full overflow-hidden">
+                <div id="rtBar" class="h-full bg-purple-500 rounded-full transition-all duration-700" style="width:0%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1.5">
+                <span class="text-surface-500">Replies</span>
+                <span id="replyPct" class="font-medium text-surface-700">--%</span>
+              </div>
+              <div class="w-full h-2 bg-surface-100 rounded-full overflow-hidden">
+                <div id="replyBar" class="h-full bg-amber-500 rounded-full transition-all duration-700" style="width:0%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1.5">
+                <span class="text-surface-500">Media Tweets</span>
+                <span id="mediaPct" class="font-medium text-surface-700">--%</span>
+              </div>
+              <div class="w-full h-2 bg-surface-100 rounded-full overflow-hidden">
+                <div id="mediaBar" class="h-full bg-emerald-500 rounded-full transition-all duration-700" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Tweets -->
+      <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6">
+        <h3 class="font-display font-600 text-surface-900 mb-4">Recent Tweets</h3>
+        <div id="recentTweets" class="space-y-4"></div>
+      </div>
+    </div>
+
+    <!-- ============== FOLLOWERS VIEW ============== -->
+    <div id="view-followers" class="view-content hidden">
+      <!-- Follower Stats -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-5">
+          <span class="text-xs font-medium text-surface-500 uppercase tracking-wider">Real Followers</span>
+          <p id="realFollowers" class="font-display font-700 text-2xl text-surface-900 mt-2">--</p>
+          <p id="realFollowersPct" class="text-xs text-success font-medium mt-1">--%</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-5">
+          <span class="text-xs font-medium text-surface-500 uppercase tracking-wider">Suspicious</span>
+          <p id="suspiciousFollowers" class="font-display font-700 text-2xl text-warning mt-2">--</p>
+          <p id="suspiciousFollowersPct" class="text-xs text-warning font-medium mt-1">--%</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-5">
+          <span class="text-xs font-medium text-surface-500 uppercase tracking-wider">Bot Accounts</span>
+          <p id="botFollowers" class="font-display font-700 text-2xl text-danger mt-2">--</p>
+          <p id="botFollowersPct" class="text-xs text-danger font-medium mt-1">--%</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-5">
+          <span class="text-xs font-medium text-surface-500 uppercase tracking-wider">Inactive</span>
+          <p id="inactiveFollowers" class="font-display font-700 text-2xl text-surface-400 mt-2">--</p>
+          <p id="inactiveFollowersPct" class="text-xs text-surface-400 font-medium mt-1">--%</p>
+        </div>
+      </div>
+
+      <!-- Follower Quality Breakdown -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6">
+          <h3 class="font-display font-600 text-surface-900 mb-4">Follower Quality Distribution</h3>
+          <div class="h-64" id="followerQualityChart"></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6">
+          <h3 class="font-display font-600 text-surface-900 mb-4">Follower Demographics</h3>
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between text-sm mb-1.5">
+                <span class="text-surface-500">Verified Accounts</span>
+                <span id="verifiedPct" class="font-medium text-surface-700">--%</span>
+              </div>
+              <div class="w-full h-2 bg-surface-100 rounded-full overflow-hidden">
+                <div id="verifiedBar" class="h-full bg-brand-500 rounded-full transition-all duration-700" style="width:0%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1.5">
+                <span class="text-surface-500">With Profile Photo</span>
+                <span id="photoPct" class="font-medium text-surface-700">--%</span>
+              </div>
+              <div class="w-full h-2 bg-surface-100 rounded-full overflow-hidden">
+                <div id="photoBar" class="h-full bg-purple-500 rounded-full transition-all duration-700" style="width:0%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1.5">
+                <span class="text-surface-500">With Bio</span>
+                <span id="bioPct" class="font-medium text-surface-700">--%</span>
+              </div>
+              <div class="w-full h-2 bg-surface-100 rounded-full overflow-hidden">
+                <div id="bioBar" class="h-full bg-emerald-500 rounded-full transition-all duration-700" style="width:0%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1.5">
+                <span class="text-surface-500">Active (last 30d)</span>
+                <span id="activePct" class="font-medium text-surface-700">--%</span>
+              </div>
+              <div class="w-full h-2 bg-surface-100 rounded-full overflow-hidden">
+                <div id="activeBar" class="h-full bg-amber-500 rounded-full transition-all duration-700" style="width:0%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1.5">
+                <span class="text-surface-500">High Followers (1k+)</span>
+                <span id="highFollowersPct" class="font-medium text-surface-700">--%</span>
+              </div>
+              <div class="w-full h-2 bg-surface-100 rounded-full overflow-hidden">
+                <div id="highFollowersBar" class="h-full bg-rose-500 rounded-full transition-all duration-700" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Follower List -->
+      <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-display font-600 text-surface-900">Follower List</h3>
+          <div class="flex gap-2">
+            <select id="followerFilter" onchange="filterFollowers()" class="text-xs bg-surface-50 border border-surface-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500">
+              <option value="all">All Followers</option>
+              <option value="real">Real</option>
+              <option value="suspicious">Suspicious</option>
+              <option value="bot">Bots</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+        <div id="followerList" class="space-y-2 max-h-96 overflow-y-auto"></div>
+      </div>
+    </div>
+
+    <!-- ============== BOT DETECTOR VIEW ============== -->
+    <div id="view-botdetector" class="view-content hidden">
+      <!-- Bot Detection Summary -->
+      <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6 mb-6">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center gap-6">
+          <div class="flex-1">
+            <h3 class="font-display font-600 text-lg text-surface-900 mb-2">Bot Detection Analysis</h3>
+            <p class="text-sm text-surface-500 leading-relaxed">Our algorithm analyzes multiple signals including posting patterns, account age, follower ratios, content originality, and behavioral anomalies to detect automated and fake accounts among followers.</p>
+          </div>
+          <div class="text-center px-6 py-4 bg-surface-50 rounded-xl min-w-[140px]">
+            <p id="botThreatLevel" class="font-display font-800 text-3xl text-surface-900">Low</p>
+            <p class="text-xs text-surface-500 mt-1">Threat Level</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detection Criteria -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center">
+              <svg class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>
+            </div>
+            <div>
+              <p class="font-medium text-surface-900 text-sm">No Profile Photo</p>
+              <p id="botNoPhoto" class="text-xs text-surface-500">-- accounts</p>
+            </div>
+          </div>
+          <div class="w-full h-1.5 bg-surface-100 rounded-full overflow-hidden">
+            <div id="botNoPhotoBar" class="h-full bg-red-400 rounded-full transition-all duration-700" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center">
+              <svg class="w-5 h-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
+            </div>
+            <div>
+              <p class="font-medium text-surface-900 text-sm">No Bio / Description</p>
+              <p id="botNoBio" class="text-xs text-surface-500">-- accounts</p>
+            </div>
+          </div>
+          <div class="w-full h-1.5 bg-surface-100 rounded-full overflow-hidden">
+            <div id="botNoBioBar" class="h-full bg-orange-400 rounded-full transition-all duration-700" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 bg-yellow-50 rounded-xl flex items-center justify-center">
+              <svg class="w-5 h-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+            </div>
+            <div>
+              <p class="font-medium text-surface-900 text-sm">New Accounts (&lt;30d)</p>
+              <p id="botNewAccounts" class="text-xs text-surface-500">-- accounts</p>
+            </div>
+          </div>
+          <div class="w-full h-1.5 bg-surface-100 rounded-full overflow-hidden">
+            <div id="botNewAccountsBar" class="h-full bg-yellow-400 rounded-full transition-all duration-700" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 bg-violet-50 rounded-xl flex items-center justify-center">
+              <svg class="w-5 h-5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/></svg>
+            </div>
+            <div>
+              <p class="font-medium text-surface-900 text-sm">Abnormal Ratio</p>
+              <p id="botAbnormalRatio" class="text-xs text-surface-500">-- accounts</p>
+            </div>
+          </div>
+          <div class="w-full h-1.5 bg-surface-100 rounded-full overflow-hidden">
+            <div id="botAbnormalRatioBar" class="h-full bg-violet-400 rounded-full transition-all duration-700" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 bg-pink-50 rounded-xl flex items-center justify-center">
+              <svg class="w-5 h-5 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z"/></svg>
+            </div>
+            <div>
+              <p class="font-medium text-surface-900 text-sm">Zero Tweets</p>
+              <p id="botZeroTweets" class="text-xs text-surface-500">-- accounts</p>
+            </div>
+          </div>
+          <div class="w-full h-1.5 bg-surface-100 rounded-full overflow-hidden">
+            <div id="botZeroTweetsBar" class="h-full bg-pink-400 rounded-full transition-all duration-700" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 bg-cyan-50 rounded-xl flex items-center justify-center">
+              <svg class="w-5 h-5 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 0 0-3.7-3.7 48.678 48.678 0 0 0-7.324 0 4.006 4.006 0 0 0-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 0 0 3.7 3.7 48.656 48.656 0 0 0 7.324 0 4.006 4.006 0 0 0 3.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3-3 3"/></svg>
+            </div>
+            <div>
+              <p class="font-medium text-surface-900 text-sm">Spam Patterns</p>
+              <p id="botSpamPatterns" class="text-xs text-surface-500">-- accounts</p>
+            </div>
+          </div>
+          <div class="w-full h-1.5 bg-surface-100 rounded-full overflow-hidden">
+            <div id="botSpamPatternsBar" class="h-full bg-cyan-400 rounded-full transition-all duration-700" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detected Bot Accounts List -->
+      <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-display font-600 text-surface-900">Detected Bot Accounts</h3>
+          <span id="botCount" class="px-3 py-1 bg-red-50 text-danger rounded-full text-xs font-semibold">0 bots</span>
+        </div>
+        <div id="botList" class="space-y-2 max-h-[500px] overflow-y-auto"></div>
+      </div>
+    </div>
+
+    <!-- ============== ANALYTICS VIEW ============== -->
+    <div id="view-analytics" class="view-content hidden">
+      <!-- Top Stats Row -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-5">
+          <span class="text-xs font-medium text-surface-500 uppercase tracking-wider">Avg. Likes</span>
+          <p id="avgLikes" class="font-display font-700 text-2xl text-surface-900 mt-2">--</p>
+          <p class="text-xs text-surface-500 font-medium mt-1">Per tweet</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-5">
+          <span class="text-xs font-medium text-surface-500 uppercase tracking-wider">Avg. Retweets</span>
+          <p id="avgRetweets" class="font-display font-700 text-2xl text-surface-900 mt-2">--</p>
+          <p class="text-xs text-surface-500 font-medium mt-1">Per tweet</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-5">
+          <span class="text-xs font-medium text-surface-500 uppercase tracking-wider">Avg. Replies</span>
+          <p id="avgReplies" class="font-display font-700 text-2xl text-surface-900 mt-2">--</p>
+          <p class="text-xs text-surface-500 font-medium mt-1">Per tweet</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-5">
+          <span class="text-xs font-medium text-surface-500 uppercase tracking-wider">Impressions</span>
+          <p id="avgImpressions" class="font-display font-700 text-2xl text-surface-900 mt-2">--</p>
+          <p class="text-xs text-surface-500 font-medium mt-1">Estimated monthly</p>
+        </div>
+      </div>
+
+      <!-- Analytics Charts -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6">
+          <h3 class="font-display font-600 text-surface-900 mb-4">Posting Hours Distribution</h3>
+          <div class="h-52" id="hoursChart"></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6">
+          <h3 class="font-display font-600 text-surface-900 mb-4">Tweet Performance</h3>
+          <div class="h-52" id="performanceChart"></div>
+        </div>
+      </div>
+
+      <!-- Hashtag & Mentions -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6">
+          <h3 class="font-display font-600 text-surface-900 mb-4">Top Hashtags</h3>
+          <div id="topHashtags" class="space-y-3"></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6">
+          <h3 class="font-display font-600 text-surface-900 mb-4">Most Mentioned</h3>
+          <div id="topMentions" class="space-y-3"></div>
+        </div>
+      </div>
+
+      <!-- Best Performing Tweet -->
+      <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6">
+        <h3 class="font-display font-600 text-surface-900 mb-4">Best Performing Tweets</h3>
+        <div id="bestTweets" class="space-y-4"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="font-display font-700 text-lg text-surface-900">Settings</h3>
+        <button onclick="closeSettings()" class="p-1 rounded-lg hover:bg-surface-100 transition-colors text-surface-400">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-surface-700 mb-1.5">Bot Detection Sensitivity</label>
+          <select id="botSensitivity" class="w-full bg-surface-50 border border-surface-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+            <option value="low">Low - Only flag obvious bots</option>
+            <option value="medium" selected>Medium - Balanced detection</option>
+            <option value="high">High - Flag all suspicious accounts</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-surface-700 mb-1.5">Data Simulation Mode</label>
+          <p class="text-xs text-surface-500 mb-2">This app uses simulated data for demonstration. In production, connect to the X API.</p>
+          <div class="flex items-center gap-3 px-4 py-3 bg-surface-50 rounded-xl">
+            <div class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></div>
+            <span class="text-sm text-surface-600">Demo Mode Active</span>
+          </div>
+        </div>
+      </div>
+      <button onclick="closeSettings()" class="mt-6 w-full bg-surface-900 hover:bg-surface-800 text-white py-2.5 rounded-xl text-sm font-semibold transition-all">Done</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-surface-200 bg-white mt-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 bg-surface-900 rounded-lg flex items-center justify-center">
+            <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </div>
+          <span class="text-sm font-semibold text-surface-700">XRadar</span>
+        </div>
+        <p class="text-xs text-surface-400 text-center">Demo mode — uses simulated data for illustration. Connect to the X API for live analytics.</p>
+        <p class="text-xs text-surface-400">&copy; 2026 XRadar</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
